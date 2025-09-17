@@ -1,6 +1,6 @@
 # FitPickAI
 
-WardrobeAI is a full-stack web application that helps users organize their virtual wardrobe and automatically generates a **daily outfit of the day (OOTD)**. Users can upload their clothes, mark availability (e.g., laundry), and get personalized outfit suggestions displayed on an avatar.  
+WardrobeAI is a full-stack web application that helps users organize their virtual wardrobe and automatically generates a **daily outfit of the day (OOTD)**. Users can upload their clothes, mark availability (e.g., laundry), and get personalized outfit suggestions displayed on an avatar.
 
 Built with **Next.js, Tailwind CSS, Supabase, and Vercel**.
 
@@ -26,6 +26,8 @@ Built with **Next.js, Tailwind CSS, Supabase, and Vercel**.
 ---
 
 ## 🚀 Getting Started
+
+Visit the actual deployed version on vercel, or:
 
 ### 1. Clone Repo
 ```bash
