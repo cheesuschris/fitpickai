@@ -29,7 +29,7 @@ Built with **Next.js, Tailwind CSS, Supabase, and Vercel**.
 
 ## 🚀 Getting Started
 
-Visit [fitpickai](https://fitpickai.vercel.app/), or developers can also run locally:
+Visit [fitpickai.vercel.app](https://fitpickai.vercel.app/), or developers can also run locally:
 
 ### 1. Clone Repo
 
