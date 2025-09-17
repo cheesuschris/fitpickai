@@ -31,8 +31,8 @@ Visit the deployment on vercel, or developers run locally:
 
 ### 1. Clone Repo
 ```bash
-git clone https://github.com/yourusername/wardrobeai.git
-cd wardrobeai
+git clone https://github.com/cheesuschris/fitpickai.git
+cd fitpickai
 ```
 ### 2. Install dependencies
 ```bash
