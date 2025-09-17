@@ -47,8 +47,8 @@ npm install
 ### 3. Create a local .env file
 
 ```bash
-PUBLIC_SUPABASE_URL=your_supabase_url
-PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_URL=https://vxvonbjdddinyztmhddp.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4dm9uYmpkZGRpbnl6dG1oZGRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjAzODYsImV4cCI6MjA3MzY5NjM4Nn0.D0SwpxETW9S6Is_m0yk19JYr85O6WD1KgehsWlnrtqU
 ```
 
 ### 4. Run dev server
