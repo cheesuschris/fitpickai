@@ -27,7 +27,7 @@ Built with **Next.js, Tailwind CSS, Supabase, and Vercel**.
 
 ## 🚀 Getting Started
 
-Visit the actual deployed version on vercel, or:
+Visit the deployment on vercel, or run locally:
 
 ### 1. Clone Repo
 ```bash
