@@ -12,13 +12,13 @@ export async function fetchPersonalRatings() {
     const userId = session.user.id;
     try {
         const data = await sql<PersonalRatingsTrend[]>`
-        SELECT outfit_id, json_agg(
+        SELECT user_id, outfits.name, outfit_id, json_agg(
         json_build_object(
-        'user_id', user_id,
         'rating', rating,
         'date', date) ORDER BY date DESC
         ) as ratings
         FROM personal_ratings
+        JOIN outfits ON personal_ratings.outfit_id = outfits.id
         WHERE user_id = ${userId}
         GROUP BY outfit_id
         ORDER BY date DESC

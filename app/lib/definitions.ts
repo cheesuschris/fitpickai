@@ -27,9 +27,10 @@ export type Outfit = {
 
 export type PersonalRatingsTrend = {
     id: string;
+    user_id: string;
+    outfit_name: string;
     outfit_id: string; //Foreign Key
     ratings: {
-        user_id: string; //Foreign Key
         rating: number;
         date: string;
     }[];

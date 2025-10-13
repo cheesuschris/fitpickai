@@ -24,8 +24,7 @@ const searchParams = useSearchParams();
           <div>
             <label
               className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-              htmlFor="email"
-            >
+              htmlFor="email">
               Email
             </label>
             <div className="relative">
@@ -43,8 +42,7 @@ const searchParams = useSearchParams();
           <div className="mt-4">
             <label
               className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-              htmlFor="password"
-            >
+              htmlFor="password">
               Password
             </label>
             <div className="relative">
