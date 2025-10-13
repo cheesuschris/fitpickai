@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    ppr: "incremental",
-  },
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,

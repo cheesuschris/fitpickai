@@ -28,12 +28,7 @@ cd fitpickai
 npm i
 ```
 
-### 3. Create a local .env file and paste in the following fields
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL =
-NEXT_PUBLIC_SUPABASE_ANON_KEY =
-```
+### 3. Create a local .env file and paste in the correct fields
 
 ### 4. Run dev server
 

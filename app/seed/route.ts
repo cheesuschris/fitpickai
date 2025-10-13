@@ -64,16 +64,19 @@ async function seedOutfits() {
 async function seedPersonalRatings() {
     await sql`
         CREATE TABLE IF NOT EXISTS personal_ratings (
+            id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
             user_id UUID NOT NULL REFERENCES users(id),
             outfit_id UUID NOT NULL REFERENCES outfits(id),
-            date DATE NOT NULL UNIQUE,
-            rating INT NOT NULL
+            date DATE NOT NULL,
+            rating INT NOT NULL,
+            UNIQUE(user_id, outfit_id, date)
         );
     `;
     const insertedRatings = await Promise.all(
         ratings.map((rating) => sql`
             INSERT INTO personal_ratings (user_id, outfit_id, date, rating)
             VALUES (${rating.user_id}, ${rating.outfit_id}, ${rating.date}, ${rating.rating})
+            ON CONFLICT (id) DO NOTHING;
         `)
     );
     return insertedRatings;

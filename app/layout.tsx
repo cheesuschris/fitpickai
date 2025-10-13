@@ -4,9 +4,12 @@ import {Metadata} from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-    title: "FitPickAI Landing Page",
+    title: "FitPickAI",
     description: "The official FitPickAI Landing Page",
     metadataBase: new URL("https://fitpickai.vercel.app/"),
+    icons: {
+        icon: "/favicon.ico"
+    }
 };
 
 export default function RootLayout({

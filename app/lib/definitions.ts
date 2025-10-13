@@ -26,10 +26,13 @@ export type Outfit = {
 };
 
 export type PersonalRatingsTrend = {
-    user_id: string; //Foreign Key
+    id: string;
     outfit_id: string; //Foreign Key
-    date: string;
-    rating: number;
+    ratings: {
+        user_id: string; //Foreign Key
+        rating: number;
+        date: string;
+    }[];
 };
 
 export type ViewerOutfit = Omit<Outfit, 'personal_rating'>;

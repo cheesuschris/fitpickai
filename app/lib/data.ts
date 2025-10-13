@@ -7,11 +7,22 @@ const sql = postgres(process.env.POSTGRES_URL!, {ssl: "require"});
 export async function fetchPersonalRatings() {
     const session = await auth();
     if (!session?.user?.id) {
-        throw new Error("You must be logged in to update an outfit.");
+        throw new Error("You must be logged in to fetch ratings.");
     }
     const userId = session.user.id;
     try {
-        const data = await sql<PersonalRatingsTrend[]>`SELECT * FROM personal_ratings WHERE personal_ratings.user_id = ${userId}`;
+        const data = await sql<PersonalRatingsTrend[]>`
+        SELECT outfit_id, json_agg(
+        json_build_object(
+        'user_id', user_id,
+        'rating', rating,
+        'date', date) ORDER BY date DESC
+        ) as ratings
+        FROM personal_ratings
+        WHERE user_id = ${userId}
+        GROUP BY outfit_id
+        ORDER BY date DESC
+        `;
         return data;
     } catch (error) {
         console.error("Database Error: ", error);
