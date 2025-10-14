@@ -36,9 +36,16 @@ export type PersonalRatingsTrend = {
     }[];
 };
 
-export type ViewerOutfit = Omit<Outfit, 'personal_rating'>;
+export type ViewerOutfit = Omit<Outfit, 'personal_rating'> & {
+    user_name: string;
+};
 
 export type UserField = {
     id: string;
     name: string;
+    email: string;
+    total_outfits: number;
+    total_in_rotation: number;
+    total_out_of_rotation: number;
+    avg_self_rating: number;
 };

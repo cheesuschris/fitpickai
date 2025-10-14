@@ -124,7 +124,7 @@ export async function fetchUsers() {
     try {
         const users = await sql<UserField[]>`
         SELECT 
-        users.id, 
+        users.id,
         users.name, 
         users.email, 
         COUNT(outfits.id) AS total_outfits, 
@@ -146,7 +146,7 @@ export async function fetchFilteredUsers(query: string) {
     try {
         const data = await sql<UserField[]>`
         SELECT 
-        users.id, 
+        users.id
         users.name, 
         users.email, 
         COUNT(outfits.id) AS total_outfits, 
