@@ -1,13 +1,13 @@
 import FitPickAILogo from "@/app/ui/fitpickai-logo";
-import LoginForm from "@/app/ui/login-form";
+import RegisterForm from "@/app/ui/register-form";
 import { Suspense } from "react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Login"
+    title: "Register"
 };
 
-export default function LoginPage() {
+export default function RegisterPage() {
     return (
         <main className="flex items-center justify-center md:h-screen">
             <div className="relative mx-auto flex w-full max-w-[400px] flex-col space-y-2.5 p-4 md:-mt-32">
@@ -16,8 +16,8 @@ export default function LoginPage() {
                     <FitPickAILogo />
                 </div>
                 </div>
-                <Suspense fallback = {<p>Hang on, getting the login page...</p>}>
-                <LoginForm />
+                <Suspense fallback = {<p>Hang on, getting the register page...</p>}>
+                <RegisterForm />
                 </Suspense>
             </div>
         </main>

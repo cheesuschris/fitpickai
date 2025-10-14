@@ -5,19 +5,68 @@ import {redirect} from "next/navigation";
 import {signIn, auth} from "@/auth";
 import { AuthError } from "next-auth";
 import { z } from "zod";
+import { userAgent } from "next/server";
+import bcrypt from "bcrypt";
 
 const sql = postgres(process.env.POSTGRES_URL!, {
     ssl: "require"
 });
+
+const UserSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string(),
+    password: z.string(),
+    date: z.string()
+});
+
+const CreateUser = UserSchema.omit({id: true});
+
+export type UserState = {
+    errors?: {
+        name: string[];
+        email: string[];
+        password: string[];
+    };
+    message?: string | null;
+}
+
+export async function createUser(prevState: UserState, formData: FormData) {
+    const validatedFields = CreateUser.safeParse({
+        name: formData.get("name"),
+        email: formData.get("email"),
+        password: formData.get("password")
+    });
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: "Missing Fields. Failed to create user."
+        };
+    }
+    const {name, email, password} = validatedFields.data;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const date = new Date().toISOString().split("T")[0];
+    try {
+        await sql` 
+        INSERT INTO users (name, email, password, date)
+        VALUES (${name}, ${email}, ${hashedPassword}, ${date})
+        ON CONFLICT (id) DO NOTHING;
+        `;
+    } catch (error) {
+        console.error(error);
+    }
+    revalidatePath("/dashboard/outfits");
+    redirect("/dashboard/outfits");
+}
 
 const FormSchema = z.object({
     id: z.string(),
     userId: z.string(),
     date: z.string(),
     name: z.string().optional(),
-    shirtImageUrl: z.string({invalid_type_error: "Please choose your shirt."}),
-    pantsImageUrl: z.string({invalid_type_error: "Please choose your pants or shorts."}),
-    shoesImageUrl: z.string({invalid_type_error: "Please choose your shoes."}),
+    shirtImageUrl: z.string({message: "Please choose a valid shirt."}),
+    pantsImageUrl: z.string({message: "Please choose a valid pair of pants or shorts."}),
+    shoesImageUrl: z.string({message: "Please choose a valid pair of shoes."}),
     hatAccessoryImageUrl: z.string().optional(),
     glassesAccessoryImageUrl: z.string().optional(),
     earPiercingsAccessoryImageUrl: z.string().optional(),
@@ -26,7 +75,7 @@ const FormSchema = z.object({
     pantsAccessoryImageUrl: z.string().optional(),
     bagAccessoryImageUrl: z.string().optional(),
     personalRating: z.coerce.number().min(0).max(10, { message: "Please enter a rating between 1 and 10." }),
-    rotationStatus: z.enum(["In rotation", "Out of rotation"], { invalid_type_error: "Please select this outfit's rotation status."}),
+    rotationStatus: z.enum(["In rotation", "Out of rotation"], { message: "Please select a valid value for this outfit's rotation status."}),
 });
 
 const CreateOutfit = FormSchema.omit({id: true, userId: true, date: true});
@@ -47,6 +96,7 @@ export async function createOutfit(prevState: State, formData: FormData) {
         throw new Error("You must be logged in to create an outfit.");
     }
     const userId = session.user.id;
+    const userName = await sql`SELECT name FROM users WHERE id = ${userId}`;
     const validatedFields = CreateOutfit.safeParse({
         name: formData.get("name"),
         shirtImageUrl: formData.get("shirtImageUrl"),
@@ -73,7 +123,7 @@ export async function createOutfit(prevState: State, formData: FormData) {
     try {
         await sql`
             INSERT INTO outfits (user_id, date, name, shirt_image_url, pants_image_url, shoes_image_url, hat_accessory_image_url, glasses_accessory_image_url, ear_piercings_accessory_image_url, neck_accessory_image_url, wrist_accessory_image_url, pants_accessory_image_url, bag_accessory_image_url, personal_rating, rotation_status)
-            VALUES (${userId}, ${date}, ${name}, ${shirtImageUrl}, ${pantsImageUrl}, ${shoesImageUrl}, ${hatAccessoryImageUrl ?? null}, ${glassesAccessoryImageUrl ?? null}, ${earPiercingsAccessoryImageUrl ?? null}, ${neckAccessoryImageUrl ?? null}, ${wristAccessoryImageUrl ?? null}, ${pantsAccessoryImageUrl ?? null}, ${bagAccessoryImageUrl ?? null}, ${personalRating}, ${rotationStatus})
+            VALUES (${userId}, ${date}, ${name ?? `${userName}'s' Outfit - ${date}`}, ${shirtImageUrl}, ${pantsImageUrl}, ${shoesImageUrl}, ${hatAccessoryImageUrl ?? null}, ${glassesAccessoryImageUrl ?? null}, ${earPiercingsAccessoryImageUrl ?? null}, ${neckAccessoryImageUrl ?? null}, ${wristAccessoryImageUrl ?? null}, ${pantsAccessoryImageUrl ?? null}, ${bagAccessoryImageUrl ?? null}, ${personalRating}, ${rotationStatus})
         `;
     } catch (error) {
         console.error(error);
@@ -88,6 +138,7 @@ export async function updateOutfit(id: string, prevState: State, formData: FormD
         throw new Error("You must be logged in to update an outfit.");
     }
     const userId = session.user.id;
+    const userName = await sql`SELECT name FROM users WHERE id = ${userId}`;
     const validatedFields = UpdateOutfit.safeParse({
         name: formData.get("name"),
         shirtImageUrl: formData.get("shirtImageUrl"),
@@ -114,7 +165,7 @@ export async function updateOutfit(id: string, prevState: State, formData: FormD
     try {
         await sql`
             UPDATE outfits
-            SET name = ${name}, shirt_image_url = ${shirtImageUrl}, pants_image_url = ${pantsImageUrl}, shoes_image_url = ${shoesImageUrl}, hat_accessory_image_url = ${hatAccessoryImageUrl}, glasses_accessory_image_url = ${glassesAccessoryImageUrl}, ear_piercings_accessory_image_url = ${earPiercingsAccessoryImageUrl}, neck_accessory_image_url = ${neckAccessoryImageUrl}, wrist_accessory_image_url = ${wristAccessoryImageUrl}, pants_accessory_image_url = ${pantsAccessoryImageUrl}, bag_accessory_image_url = ${bagAccessoryImageUrl}, personal_rating = ${personalRating}, rotation_status = ${rotationStatus}
+            SET name = ${name ?? `${userName}'s Outfit - Updated ${date}`}, shirt_image_url = ${shirtImageUrl}, pants_image_url = ${pantsImageUrl}, shoes_image_url = ${shoesImageUrl}, hat_accessory_image_url = ${hatAccessoryImageUrl ?? null}, glasses_accessory_image_url = ${glassesAccessoryImageUrl ?? null}, ear_piercings_accessory_image_url = ${earPiercingsAccessoryImageUrl ?? null}, neck_accessory_image_url = ${neckAccessoryImageUrl ?? null}, wrist_accessory_image_url = ${wristAccessoryImageUrl ?? null}, pants_accessory_image_url = ${pantsAccessoryImageUrl ?? null}, bag_accessory_image_url = ${bagAccessoryImageUrl ?? null}, personal_rating = ${personalRating}, rotation_status = ${rotationStatus}
             WHERE id = ${id}
         `;
     } catch (error) {

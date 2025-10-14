@@ -4,4 +4,4 @@
 ### Figure out social connections
 ### Figure out how to display user's own wardrobe: spinning clothes or swiping l/r through or scroll u/d through available clothes
 ### Complete the entire dashboard
-### Completpe the ui outfits forms, pagination, status, and table
+### Complete the ui outfits forms, pagination, status, and table
