@@ -38,3 +38,36 @@ export const {auth, signIn, signOut} = NextAuth({
         })
     ]
 });
+
+export const {}
+
+export async function checkName(name: string): Promise<{isValid: boolean; message? : string}> {
+    if (!name || name.trim().length < 1) {
+        return {isValid: false, message: "Name required"};
+    }
+    try {
+        const response = await fetch('@/api/check-name', {
+            method: 'POST',
+            headers: {'Content-Type': '/application/json'},
+            body: JSON.stringify({name: name.trim()})
+        });
+        const data = await response.json();
+        const {exists} = data.exists;
+        if (exists) {
+            return {isValid: false, message: "Name is already taken"};
+        }
+        return {isValid: true};
+    } catch (error) {
+        console.error("Error checking name availability: ", error);
+        return {isValid: false, message: "Error checking name availability"};
+    }
+}
+export function checkPassword(password: string, repassword: string): {isValid: boolean; message?: string} {
+    if (!password || password.length < 11) {
+        return {isValid: false, message: "Password must be at least 11 characters"};
+    }
+    if (password !== repassword) {
+        return {isValid: false, message: "Passwords don't match"};
+    }
+    return {isValid: true};
+}

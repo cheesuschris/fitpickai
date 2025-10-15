@@ -5,7 +5,7 @@ import {redirect} from "next/navigation";
 import {signIn, auth} from "@/auth";
 import { AuthError } from "next-auth";
 import { z } from "zod";
-import { userAgent } from "next/server";
+import { checkName, checkPassword} from "@/auth";
 import bcrypt from "bcrypt";
 
 const sql = postgres(process.env.POSTGRES_URL!, {
@@ -17,6 +17,7 @@ const UserSchema = z.object({
     name: z.string(),
     email: z.string(),
     password: z.string(),
+    repassword: z.string(),
     date: z.string()
 });
 
@@ -27,6 +28,7 @@ export type UserState = {
         name: string[];
         email: string[];
         password: string[];
+        repassword: string[];
     };
     message?: string | null;
 }
@@ -35,7 +37,8 @@ export async function createUser(prevState: UserState, formData: FormData) {
     const validatedFields = CreateUser.safeParse({
         name: formData.get("name"),
         email: formData.get("email"),
-        password: formData.get("password")
+        password: formData.get("password"),
+        repassword: formData.get("repassword")
     });
     if (!validatedFields.success) {
         return {
@@ -43,7 +46,21 @@ export async function createUser(prevState: UserState, formData: FormData) {
             message: "Missing Fields. Failed to create user."
         };
     }
-    const {name, email, password} = validatedFields.data;
+    const {name, email, password, repassword} = validatedFields.data;
+    const nameResponse = await checkName(name);
+    if (!nameResponse.isValid) {
+        return {
+            errors: null,
+            message: nameResponse.message
+        };
+    }
+    const passwordResponse = checkPassword(password, repassword);
+    if (!passwordResponse.isValid) {
+        return {
+            errors: null,
+            message: passwordResponse.message
+        }
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
     const date = new Date().toISOString().split("T")[0];
     try {
@@ -52,8 +69,17 @@ export async function createUser(prevState: UserState, formData: FormData) {
         VALUES (${name}, ${email}, ${hashedPassword}, ${date})
         ON CONFLICT (id) DO NOTHING;
         `;
+        await signIn("credentials", formData);
     } catch (error) {
-        console.error(error);
+        if (error instanceof AuthError) {
+            switch (error.type) {
+                case "CredentialsSignin":
+                    return "Invalid credentials.";
+                default:
+                    return "Something went wrong.";
+            }
+        }
+        throw error;
     }
     revalidatePath("/dashboard/outfits");
     redirect("/dashboard/outfits");

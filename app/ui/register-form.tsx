@@ -3,45 +3,12 @@ import {montserrat} from "@/app/ui/fonts";
 import {AtSymbolIcon, KeyIcon, ExclamationCircleIcon, UserIcon} from "@heroicons/react/24/outline";
 import {ArrowRightIcon} from "@heroicons/react/20/solid";
 import {Button} from "./button";
-import {useActionState} from "react";
-import {createUser} from "@/app/lib/actions";
 import {useSearchParams} from "next/navigation";
-
-export async function checkName(name: string): Promise<{isValid: boolean; message? : string}> {
-    if (!name || name.trim().length < 1) {
-        return {isValid: false, message: "Name required"};
-    }
-    try {
-        const response = await fetch('@/api/check-name', {
-            method: 'POST',
-            headers: {'Content-Type': '/application/json'},
-            body: JSON.stringify({name: name.trim()})
-        });
-        const data = await response.json();
-        const {exists} = data.exists;
-        if (exists) {
-            return {isValid: false, message: "Name is already taken"};
-        }
-        return {isValid: true};
-    } catch (error) {
-        console.error("Error checking name availability: ", error);
-        return {isValid: false, message: "Error checking name availability"};
-    }
-}
-export function checkPassword(password: string, repassword: string): {isValid: boolean; message?: string} {
-    if (!password || password.length < 11) {
-        return {isValid: false, message: "Password must be at least 11 characters"};
-    }
-    if (password !== repassword) {
-        return {isValid: false, message: "Passwords don't match"};
-    }
-    return {isValid: true};
-}
 
 export default function RegisterForm() {
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
-    const [errorMessage, formAction, isPending] = useActionState(createUser, null);
+    
     return (
         <form action = {formAction} className = "space-y-3">
             <div className = "flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
