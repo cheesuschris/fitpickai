@@ -142,18 +142,6 @@ export async function fetchUsers() {
     }
 }
 
-export async function fetchUserByExactName(query: string) {
-    try {
-        const data = await sql<User[]>`
-            SELECT name FROM users WHERE name = ${`%${query}`} LIMIT 1
-        `;
-        return data;
-    } catch (error) {
-        console.error("Database Error: ", error);
-        throw new Error("Failed to fetch exact User.");
-    }
-}
-
 export async function fetchFilteredUsers(query: string) {
     try {
         const data = await sql<UserField[]>`

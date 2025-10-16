@@ -5,7 +5,6 @@ import {z} from "zod";
 import type { User } from "@/app/lib/definitions";
 import bcrypt from "bcrypt";
 import postgres from "postgres";
-import { getSupportedBrowsers } from "next/dist/build/utils";
 
 const sql = postgres(process.env.POSTGRES_URL!, {ssl: "require"});
 
@@ -14,8 +13,8 @@ async function getUser(email: string): Promise<User | undefined> {
         const user = await (sql<User[]>`SELECT * FROM users WHERE email=${email}` as unknown as Promise<User[]>);
         return user[0];
     } catch (error) {
-        console.error("Failed to fetch user:", error)
-        throw new Error ("Failed to fetch user.")
+        console.error("Failed to fetch user: ", error);
+        throw new Error ("Failed to fetch user.");
     }
 }
 
@@ -39,21 +38,13 @@ export const {auth, signIn, signOut} = NextAuth({
     ]
 });
 
-export const {}
-
 export async function checkName(name: string): Promise<{isValid: boolean; message? : string}> {
     if (!name || name.trim().length < 1) {
         return {isValid: false, message: "Name required"};
     }
     try {
-        const response = await fetch('@/api/check-name', {
-            method: 'POST',
-            headers: {'Content-Type': '/application/json'},
-            body: JSON.stringify({name: name.trim()})
-        });
-        const data = await response.json();
-        const {exists} = data.exists;
-        if (exists) {
+        const user = await (sql<{count: number}[]>`SELECT COUNT(*) FROM users WHERE name=${name}`);
+        if (user[0].count != 0) {
             return {isValid: false, message: "Name is already taken"};
         }
         return {isValid: true};
@@ -62,6 +53,7 @@ export async function checkName(name: string): Promise<{isValid: boolean; messag
         return {isValid: false, message: "Error checking name availability"};
     }
 }
+
 export function checkPassword(password: string, repassword: string): {isValid: boolean; message?: string} {
     if (!password || password.length < 11) {
         return {isValid: false, message: "Password must be at least 11 characters"};

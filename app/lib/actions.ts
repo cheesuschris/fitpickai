@@ -2,10 +2,9 @@
 import postgres from "postgres";
 import {revalidatePath} from "next/cache";
 import {redirect} from "next/navigation";
-import {signIn, auth} from "@/auth";
+import {signIn, auth, checkName, checkPassword} from "@/auth";
 import { AuthError } from "next-auth";
 import { z } from "zod";
-import { checkName, checkPassword} from "@/auth";
 import bcrypt from "bcrypt";
 
 const sql = postgres(process.env.POSTGRES_URL!, {
@@ -25,15 +24,15 @@ const CreateUser = UserSchema.omit({id: true});
 
 export type UserState = {
     errors?: {
-        name: string[];
-        email: string[];
-        password: string[];
-        repassword: string[];
-    };
+        name?: string[];
+        email?: string[];
+        password?: string[];
+        repassword?: string[];
+    } | null;
     message?: string | null;
 }
 
-export async function createUser(prevState: UserState, formData: FormData) {
+export async function createUser(prevState: UserState | undefined, formData: FormData): Promise<UserState | undefined> {
     const validatedFields = CreateUser.safeParse({
         name: formData.get("name"),
         email: formData.get("email"),
@@ -74,15 +73,13 @@ export async function createUser(prevState: UserState, formData: FormData) {
         if (error instanceof AuthError) {
             switch (error.type) {
                 case "CredentialsSignin":
-                    return "Invalid credentials.";
+                    return {errors: null, message: "Invalid credentials."};
                 default:
-                    return "Something went wrong.";
+                    return {errors: null, message: "Something went wrong."};
             }
         }
         throw error;
     }
-    revalidatePath("/dashboard/outfits");
-    redirect("/dashboard/outfits");
 }
 
 const FormSchema = z.object({
@@ -107,16 +104,26 @@ const FormSchema = z.object({
 const CreateOutfit = FormSchema.omit({id: true, userId: true, date: true});
 const UpdateOutfit = FormSchema.omit({id: true, userId: true, date: true});
 
-export type State = {
+export type OutfitState = {
     errors?: {
-        userId?: string[];
+        name?: string[];
+        shirtImageUrl?: string[];
+        pantsImageUrl?: string[];
+        shoesImageUrl?: string[];
+        hatAccessoryImageUrl?: string[];
+        glassesAccessoryImageUrl?: string[];
+        earPiercingsAccessoryImageUrl?: string[];
+        neckAccessoryImageUrl?: string[];
+        wristAccessoryImageUrl?: string[];
+        pantsAccessoryImageUrl?: string[];
+        bagAccessoryImageUrl?: string[];
         personalRating?: string[];
         rotationStatus?: string[];
-    };
+    } | null;
     message?: string | null;
 };
 
-export async function createOutfit(prevState: State, formData: FormData) {
+export async function createOutfit(prevState: OutfitState | undefined, formData: FormData): Promise<OutfitState | undefined> {
     const session = await auth();
     if (!session?.user?.id) {
         throw new Error("You must be logged in to create an outfit.");
@@ -158,7 +165,7 @@ export async function createOutfit(prevState: State, formData: FormData) {
     redirect("/dashboard/outfits");
 }
 
-export async function updateOutfit(id: string, prevState: State, formData: FormData) {
+export async function updateOutfit(id: string, prevState: OutfitState, formData: FormData) {
     const session = await auth();
     if (!session?.user?.id) {
         throw new Error("You must be logged in to update an outfit.");
