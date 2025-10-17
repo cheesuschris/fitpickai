@@ -17,21 +17,17 @@ export default function Pagination({ totalPages }: { totalPages: number }) {
     params.set("page", pageNumber.toString());
     return `${pathname}?${params.toString()}`;
   };
-  // NOTE: Uncomment this code in Chapter 11
 
   const allPages = generatePagination(currentPage, totalPages);
 
   return (
     <>
-      {/*  NOTE: Uncomment this code in Chapter 11 */}
-
       <div className="inline-flex">
         <PaginationArrow
           direction="left"
           href={createPageURL(currentPage - 1)}
           isDisabled={currentPage <= 1}
         />
-
         <div className="flex -space-x-px">
           {allPages.map((page, index) => {
             let position: 'first' | 'last' | 'single' | 'middle' | undefined;
